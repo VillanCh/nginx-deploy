@@ -1,11 +1,10 @@
 version: '3'
 services:
     web:
-        image: nginx:alpine
+        image: v1ll4n/api-server-base:latest
         volumes:
             - "./nginx-config/ssl:/etc/ssl"
             - "./static:/var/www/html"
-            - "./nginx-config/nginx/default.conf.template:/etc/nginx/conf.d/default.conf.template"
         ports:
             - "8992:80"
         environment:
@@ -15,5 +14,4 @@ services:
             # 设置 /api 开头的反代设置
             - REVERSE_PROXY_HOST=127.0.0.1
             - REVERSE_PROXY_PORT=8080
-        command: /bin/sh -c "export DOLLAR='$$' && envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
         restart: always
