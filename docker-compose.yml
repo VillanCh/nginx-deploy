@@ -3,17 +3,39 @@ services:
     web:
         image: nginx:alpine
         volumes:
+            # 如果开启 HTTPS，这个配置就会很好用
             - "./nginx-config/ssl:/etc/ssl"
+
+            # 一般在这儿可以部署静态文件
             - "./static:/var/www/html"
+
+            # 这个是模版，一般没有需要就不要改了
             - "./nginx-config/nginx/default.conf.template:/etc/nginx/conf.d/default.conf.template"
+
+            # 这个启动脚本可以看情况改，肯跟需要配合模版使用
+            - "./run.sh:/run.sh"
         ports:
-            - "8992:80"
+          - "8992:80"
+        # 设置为 HOST 模式会省很多事儿，也可以无缝监听本地任何地方开启的端口
+        #    1. MacOS 下，Host 模式不能用
+        #    2. Linux 下，Host 模式好用
+        # network_mode: "host"
         environment:
             # 设置 server name
             - SERVER_NAME=localhost
+            - LISTEN_HTTP_PORT=80
+            - LISTEN_HTTPS_PORT=443
+
+            # 设置 HTTPS 是否开启
+            #   1. true 开始监听 LISTEN_HTTPS_PORT, 并且配置证书
+            #   2. 其他值均不可开启
+            - DISABLE_HTTPS=true
+            - SSL_CERTIFICATE_PATH=/etc/ssl/crt.pem
+            - SSL_CERTIFICATE_KEY_PATH=/etc/ssl/key.pem
 
             # 设置 /api 开头的反代设置
             - REVERSE_PROXY_HOST=127.0.0.1
             - REVERSE_PROXY_PORT=8080
-        command: /bin/sh -c "export DOLLAR='$$' && envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+        command: /run.sh
+        # command: /run.sh && /bin/sh -c "env && export DOLLAR='$$' && envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && cat /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
         restart: always
