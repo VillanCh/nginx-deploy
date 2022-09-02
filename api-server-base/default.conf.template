@@ -25,6 +25,7 @@ server {
     ${HTTPS_DISABLE_COMMENT}    return 301 https://${DOLLAR}server_name${DOLLAR}request_uri;
     ${HTTPS_DISABLE_COMMENT}}
     
+    client_max_body_size 64M;
 
     # 设置反向代理，一般来说这儿要把 API 转出去
     location /api {
