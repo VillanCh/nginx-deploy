@@ -7,7 +7,7 @@ server {
     listen ${LISTEN_HTTP_PORT};
     ${HTTPS_DISABLE_COMMENT}listen ${LISTEN_HTTPS_PORT} ssl;
 
-    more_set_headers 'Server: NGINX'
+    server_tokens off;
 
     # 配置 SSL 证书
     #    website.crt 是证书
