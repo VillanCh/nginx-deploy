@@ -1,4 +1,7 @@
-FROM nginx:alpine
+FROM openresty/openresty:alpine
+
+RUN apk add --no-cache gettext
+
 
 # default.conf.template
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
@@ -8,6 +11,9 @@ COPY index.html /var/www/html/index.html
 
 # run.sh is entrypoint for api-server-base
 COPY run.sh /run.sh
+
+# Copy the Lua script for AES encryption
+COPY aes_encrypt.lua /usr/local/openresty/nginx/lua/aes_encrypt.lua
 
 # config env, overide can change config
 ENV SERVER_NAME=localhost
@@ -23,4 +29,8 @@ ENV DISABLE_HTTPS=true
 ENV SSL_CERTIFICATE_PATH=/etc/ssl/crt.pem
 ENV SSL_CERTIFICATE_KEY_PATH=/etc/ssl/key.pem
 
-CMD /run.sh
+# Set AES environment variables
+ENV AES_KEY=76d8749b07b4ce66
+ENV AES_IV=76d8749b07b4ce66
+
+CMD ["/bin/sh", "/run.sh"]
