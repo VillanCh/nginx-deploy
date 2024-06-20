@@ -1,6 +1,11 @@
 # Nginx configuration
 # ${DOLLAR}
 
+init_by_lua_block {
+    aes_key = os.getenv("AES_KEY")
+    aes_iv = os.getenv("AES_IV")
+}
+
 server {
     server_name ${SERVER_NAME} www.${SERVER_NAME};
 
@@ -35,6 +40,19 @@ server {
         proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
         proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
         proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+
+    }
+
+    # 对特定路径 /api/assets/vulns 使用 Lua 加密
+    location /api/assets/vulns {
+        proxy_pass http://${REVERSE_PROXY_HOST}:${REVERSE_PROXY_PORT}${DOLLAR}request_uri;
+
+        proxy_set_header X-Forwarded-Proto ${DOLLAR}scheme;
+        proxy_set_header X-Real-IP ${DOLLAR}remote_addr;
+        proxy_set_header X-Forwarded-For ${DOLLAR}proxy_add_x_forwarded_for;
+
+        header_filter_by_lua_block { ngx.header.content_length = nil; }
+        body_filter_by_lua_file /usr/local/openresty/nginx/lua/aes_encrypt.lua;
     }
 
     # 设置静态资源，一般来说

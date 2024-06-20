@@ -1,7 +1,7 @@
 version: '3'
 services:
     web:
-        image: aes_body:latest
+        image: v1ll4n/api-server-base:latest
         volumes:
             - "./nginx-config/ssl:/etc/ssl"
             - "./static:/var/www/html"
@@ -27,6 +27,7 @@ services:
             # 设置 /api 开头的反代设置
             - REVERSE_PROXY_HOST=127.0.0.1
             - REVERSE_PROXY_PORT=8080
-            - AES_KEY=0123456789abcdef
-            - AES_IV=0123456789abcdef
+            # 特定接口的加密
+            - AES_KEY=76d8749b07b4ce66
+            - AES_IV=fedcba9876543210
         restart: always
