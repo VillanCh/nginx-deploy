@@ -1,7 +1,7 @@
 version: '3'
 services:
     web:
-        image: v1ll4n/api-server-base:latest
+        image: v1ll4n/api-server-base-aes:latest
         volumes:
             - "./nginx-config/ssl:/etc/ssl"
             - "./static:/var/www/html"
